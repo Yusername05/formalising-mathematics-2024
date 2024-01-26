@@ -75,64 +75,56 @@ example : Injective (id : X → X) :=
   by-- you can start with `rw injective_def` if you like,
   -- and later you can `rw id_eval`, although remember that `rw` doesn't
   -- work under binders like `∀`, so use `intro` first.
-  sorry
+  rw [injective_def]
+  intro a b h
+  rw [id_eval, id_eval] at h
+  exact h
 
 example : Surjective (id : X → X) := by
-  sorry
+  rw [surjective_def]
+  intro b
+  use b
+  rw [id_eval]
 
 -- Theorem: if f : X → Y and g : Y → Z are injective,
 -- then so is g ∘ f
 example (f : X → Y) (g : Y → Z) (hf : Injective f) (hg : Injective g) : Injective (g ∘ f) :=
   by
-  -- By definition of injectivity,
-  -- We need to show that if a,b are in X and
-  -- (g∘f)(a)=(g∘f)(b), then a=b.
   rw [injective_def] at *
-  -- so assume a and b are arbitrary elements of X, and let `h` be the
-  -- hypothesis thst `g(f(a))=g(f(b))`
   intro a b h
-  -- our goal is to prove a=b.
-  -- By injectivity of `g`, we deduce from `h` that `f(a)=f(b)`
+  rw [comp_eval, comp_eval] at h
   apply hg at h
-  -- By injectivity of `f`, we deduce a=b
   apply hf at h
-  -- Now the goal is exactly our hypothesis `h`
   exact h
 
 -- Theorem: composite of two surjective functions
 -- is surjective.
 example (f : X → Y) (g : Y → Z) (hf : Surjective f) (hg : Surjective g) : Surjective (g ∘ f) :=
   by
-  -- Let f:X→Y and g:Y→Z be surjective functions.
-  -- By definition, we need to prove that for
-  -- all z ∈ Z there exists x ∈ X such that g(f(x))=z
-  rw [surjective_def]
-  -- So let z ∈ Z be arbitrary
+  rw [surjective_def] at *
   intro z
-  -- and we need to show there exists x ∈ X
-  -- with g(f(x))=z
-  -- Recall that g is surjective, so there
-  -- must exist y ∈ Y such that g(y)=z
   have h : ∃ y, g y = z := hg z
   cases' h with y hy
-  -- Recall also that f is surjective, so
-  -- there exists x ∈ X such that f(x)=y
-  obtain ⟨x, hx⟩ := hf y
-  -- one-liner does the same thing as two-liner above
-  -- I claim that this x works
+  have h : ∃ x, f x = y := hf y
+  cases' h with x hx
   use x
-  -- And indeed g(f(x))=g(y). You can just use `rw` to prove this;
-  -- here is a slighly different way
-  calc
-    g (f x) = g y := by rw [hx]
-    _ = z := by rw [hy]
+  rw [comp_eval, hx, hy]
 
 -- This is a question on the IUM (Imperial introduction to proof course) function problem sheet
 example (f : X → Y) (g : Y → Z) : Injective (g ∘ f) → Injective f := by
-  sorry
+  rw [injective_def] at *
+  intro hgf a b hf
+  specialize hgf a b
+  apply hgf
+  rw [comp_eval, comp_eval] at *
+  rw [hf]
 
 -- This is another one
 example (f : X → Y) (g : Y → Z) : Surjective (g ∘ f) → Surjective g := by
-  sorry
+  rw [surjective_def] at *
+  intro hgf b
+  cases' hgf b with x hx
+  use f x
+  exact hx
 
 end Section3sheet1

@@ -14,7 +14,13 @@ open Section2sheet3solutions
 
 -- you can maybe do this one now
 theorem tendsTo_neg {a : ℕ → ℝ} {t : ℝ} (ha : TendsTo a t) : TendsTo (fun n ↦ -a n) (-t) := by
-  sorry
+  rw [tendsTo_def] at *
+  have h : ∀ n, |a n - t| = |-a n - -t| := by
+    intro n
+    rw [abs_sub_comm]
+    ring_nf
+  simpa [h] using ha
+  done
 
 /-
 `tendsTo_add` is the next challenge. In a few weeks' time I'll
@@ -55,7 +61,10 @@ theorem tendsTo_add {a b : ℕ → ℝ} {t u : ℝ} (ha : TendsTo a t) (hb : Ten
 tends to `t - u`. -/
 theorem tendsTo_sub {a b : ℕ → ℝ} {t u : ℝ} (ha : TendsTo a t) (hb : TendsTo b u) :
     TendsTo (fun n ↦ a n - b n) (t - u) := by
-  -- this one follows without too much trouble from earlier results.
-  sorry
+  simp [sub_eq_add_neg]
+  apply tendsTo_add
+  exact ha
+  apply tendsTo_neg
+  exact hb
 
 end Section2sheet5
