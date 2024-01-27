@@ -76,18 +76,41 @@ Let's prove some theorems.
 
 -/
 
-example : A ⊆ A := by sorry
+example : A ⊆ A := by rfl
 
-example : A ⊆ B → B ⊆ C → A ⊆ C := by sorry
+example : A ⊆ B → B ⊆ C → A ⊆ C := by
+  intro hAB hBC a hA
+  apply hBC
+  apply hAB
+  exact hA
 
-example : A ⊆ A ∪ B := by sorry
+example : A ⊆ A ∪ B := by
+  intro a hA
+  left
+  assumption
 
-example : A ∩ B ⊆ A := by sorry
+example : A ∩ B ⊆ A := by
+  rintro a ⟨hA, -⟩
+  exact hA
 
-example : A ⊆ B → A ⊆ C → A ⊆ B ∩ C := by sorry
+example : A ⊆ B → A ⊆ C → A ⊆ B ∩ C := by
+  intro hAB hAC a hA
+  constructor
+  · exact hAB hA
+  · exact hAC hA
 
-example : B ⊆ A → C ⊆ A → B ∪ C ⊆ A := by sorry
+example : B ⊆ A → C ⊆ A → B ∪ C ⊆ A := by
+  rintro hBA hCA a (haB | haC)
+  · exact hBA haB
+  · exact hCA haC
 
-example : A ⊆ B → C ⊆ D → A ∪ C ⊆ B ∪ D := by sorry
+example : A ⊆ B → C ⊆ D → A ∪ C ⊆ B ∪ D := by
+  rintro hAB hCD a (haA | haC)
+  · left
+    exact hAB haA
+  · right
+    exact hCD haC
 
-example : A ⊆ B → C ⊆ D → A ∩ C ⊆ B ∩ D := by sorry
+example : A ⊆ B → C ⊆ D → A ∩ C ⊆ B ∩ D := by
+  rintro hAB hCD x ⟨hxA, hxC⟩
+  exact ⟨hAB hxA, hCD hxC⟩
