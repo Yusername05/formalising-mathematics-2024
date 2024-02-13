@@ -50,8 +50,7 @@ example (X : Type) (S : Set X) (hS : S.Finite) : S = S := by
 -- sets is finite?
 example (X : Type) (S : Set X) (T : Set X) (hs : Set.Finite S) (ht : T.Finite) : (S ∪ T).Finite :=
   by
-  sorry
-
+  exact Set.Finite.union hs ht
 /-
 But Lean has another way to do finite subsets.
 

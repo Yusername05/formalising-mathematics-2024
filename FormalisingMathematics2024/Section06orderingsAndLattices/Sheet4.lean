@@ -46,13 +46,27 @@ variable (L : Type) [CompleteLattice L] (a : L)
 
 -- this is called `bot_le`
 example : ⊥ ≤ a := by
-  sorry
+  rw [←sSup_empty]
+  apply sSup_le
+  rintro a ⟨⟩
 
 -- this is called `le_bot_iff`
 example : a ≤ ⊥ ↔ a = ⊥ := by
-  sorry
+  constructor
+  · rw [←sSup_empty]
+    intro h
+    apply le_antisymm
+    exact h
+    apply sSup_le
+    rintro _ ⟨⟩
+  · rintro rfl
+    rfl
 
 -- `sSup` is monotone.
 -- this is called sSup_le_sSup
 example (S T : Set L) : S ⊆ T → sSup S ≤ sSup T := by
-  sorry
+  intro hST
+  apply sSup_le
+  intro b hb
+  apply le_sSup
+  exact hST hb

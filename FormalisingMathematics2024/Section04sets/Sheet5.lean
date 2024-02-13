@@ -44,9 +44,22 @@ example : A ∪ A = A := by
     exact hA
 
 example : A ∩ A = A := by
+  ext a
+  constructor
+  · intro hA
+    cases' hA with h _
+    exact h
+  · intro hA
+    constructor <;> exact hA
 
-
-example : A ∩ ∅ = ∅ := by sorry
+example : A ∩ ∅ = ∅ := by
+  ext a
+  constructor
+  · intro ⟨_, hB⟩
+    exact hB
+  · intro hB
+    exfalso
+    exact hB
 
 example : A ∪ univ = univ := by sorry
 

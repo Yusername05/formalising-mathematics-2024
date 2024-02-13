@@ -44,19 +44,31 @@ example (ha : a ∈ H) (hb : b ∈ H) : a * b ∈ H :=
 -- Let's use these axioms to make more API for subgroups.
 -- First, see if you can put the axioms together to prove subgroups are closed under "division".
 example (ha : a ∈ H) (hb : b ∈ H) : a * b⁻¹ ∈ H := by
-  sorry
+  exact mul_mem ha (inv_mem hb)
 
 -- Now try these. You might want to remind yourself of the API for groups as explained
 -- in an earlier section, or make use of the `group` tactic.
 -- This lemma is called `Subgroup.inv_mem_iff` but try proving it yourself
 example : a⁻¹ ∈ H ↔ a ∈ H := by
-  sorry
+  constructor
+  · intro ha
+    rw [show a = a⁻¹⁻¹ by group]
+    exact inv_mem ha
+  · intro ha
+    exact inv_mem ha
 
 -- this is `mul_mem_cancel_left` but see if you can do it from the axioms of subgroups.
 -- Again feel free to use the `group` tactic.
 example (ha : a ∈ H) : a * b ∈ H ↔ b ∈ H := by
-  sorry
-
+  constructor
+  · intro hab
+    rw [←H.inv_mem_iff]
+    rw [show b⁻¹ = (a * b)⁻¹ * a by group]
+    refine' mul_mem _ ha
+    apply inv_mem
+    exact hab
+  · intro hb
+    exact mul_mem ha hb
 /-
 
 ## Complete lattice structure on subgroups of G
@@ -107,16 +119,30 @@ variable {G H} {x : G}
 variable {y z : G}
 
 theorem conjugate.one_mem : (1 : G) ∈ {a : G | ∃ h, h ∈ H ∧ a = x * h * x⁻¹} := by
-  sorry
+  use 1
+  constructor
+  · exact H.one_mem
+  · group
 
 theorem conjugate.inv_mem (hy : y ∈ {a : G | ∃ h, h ∈ H ∧ a = x * h * x⁻¹}) :
     y⁻¹ ∈ {a : G | ∃ h, h ∈ H ∧ a = x * h * x⁻¹} := by
-  sorry
+  rcases hy with ⟨g, hg, hy⟩
+  use g⁻¹
+  constructor
+  · exact H.inv_mem hg
+  · rw [hy]
+    group
 
 theorem conjugate.mul_mem (hy : y ∈ {a : G | ∃ h, h ∈ H ∧ a = x * h * x⁻¹})
     (hz : z ∈ {a : G | ∃ h, h ∈ H ∧ a = x * h * x⁻¹}) :
     y * z ∈ {a : G | ∃ h, h ∈ H ∧ a = x * h * x⁻¹} := by
-  sorry
+  rcases hy with ⟨g, hg, hy⟩
+  rcases hz with ⟨k, hk, hz⟩
+  use g * k
+  constructor
+  · exact H.mul_mem hg hk
+  · rw [hy, hz]
+    group
 
 -- Now here's the way to put everything together:
 def conjugate (H : Subgroup G) (x : G) : Subgroup G
@@ -155,16 +181,58 @@ theorem mem_conjugate_iff : a ∈ conjugate H x ↔ ∃ h, h ∈ H ∧ a = x * h
   -- true by definition!
   rfl
 
-theorem conjugate_mono (H K : Subgroup G) (h : H ≤ K) : conjugate H x ≤ conjugate K x := by
-  sorry
+theorem conjugate_mono (H K : Subgroup G) (hHK : H ≤ K) : conjugate H x ≤ conjugate K x := by
+  intro g hgH
+  rw [mem_conjugate_iff] at *
+  cases' hgH with k h
+  cases' h with hk hg
+  use k
+  constructor
+  · exact hHK hk
+  · exact hg
 
 theorem conjugate_bot : conjugate ⊥ x = ⊥ := by
-  sorry
+  ext g
+  rw [mem_conjugate_iff] at *
+  constructor
+  · rintro ⟨c, hc, rfl⟩
+    rw [Subgroup.mem_bot] at *
+    rw [hc]
+    group
+  · intro hg
+    rw [Subgroup.mem_bot] at *
+    use 1
+    constructor
+    · rfl
+    · group
+      exact hg
 
 theorem conjugate_top : conjugate ⊤ x = ⊤ := by
-  sorry
+  ext g
+  constructor
+  · intro _
+    exact Subgroup.mem_top g
+  · intro _
+    rw [mem_conjugate_iff] at *
+    use x⁻¹ * g * x
+    constructor
+    · exact Subgroup.mem_top (x⁻¹ * g * x)
+    · group
+
 
 theorem conjugate_eq_of_abelian (habelian : ∀ a b : G, a * b = b * a) : conjugate H x = H := by
-  sorry
+  ext g
+  constructor
+  · rintro ⟨c, hc, rfl⟩
+    rw [habelian x c]
+    group
+    exact hc
+  · intro hg
+    use x⁻¹ * g * x
+    constructor
+    · rw [habelian x⁻¹ g]
+      group
+      exact hg
+    · group
 
 end Section7sheet1
