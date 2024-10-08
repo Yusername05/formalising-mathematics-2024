@@ -32,20 +32,43 @@ theorem tendsTo_thirtyseven_mul (a : ℕ → ℝ) (t : ℝ) (h : TendsTo a t) :
     TendsTo (fun n ↦ 37 * a n) (37 * t) := by
     rw [tendsTo_def] at *
     intro ε hε
-
-  sorry
+    obtain ⟨N, hN⟩ := h (ε / 37) (by linarith)
+    use N
+    intro n hNn
+    specialize hN n
+    apply hN at hNn
+    rw [←mul_sub, abs_mul]
+    have h37 : |(37 : ℝ)| = 37 := by
+      rw [abs_of_nonneg]
+      norm_num
+    rw [h37]
+    linarith
 
 /-- If `a(n)` tends to `t` and `c` is a positive constant then
 `c * a(n)` tends to `c * t`. -/
 theorem tendsTo_pos_const_mul {a : ℕ → ℝ} {t : ℝ} (h : TendsTo a t) {c : ℝ} (hc : 0 < c) :
     TendsTo (fun n ↦ c * a n) (c * t) := by
-  sorry
+  rw [tendsTo_def] at *
+  intro ε hε
+  obtain ⟨N, hN⟩ := h (ε / c) (by exact div_pos hε hc)
+  use N
+  intro n hNn
+  specialize hN n
+  apply hN at hNn
+  rw [←mul_sub, abs_mul]
+  have habsc : |(c : ℝ)| = c := by
+    rw [abs_of_nonneg]
+    exact LT.lt.le hc
+  rw [habsc]
+  exact (lt_div_iff' hc).mp hNn
 
 /-- If `a(n)` tends to `t` and `c` is a negative constant then
 `c * a(n)` tends to `c * t`. -/
 theorem tendsTo_neg_const_mul {a : ℕ → ℝ} {t : ℝ} (h : TendsTo a t) {c : ℝ} (hc : c < 0) :
     TendsTo (fun n ↦ c * a n) (c * t) := by
-  sorry
+  let d := (-c : ℝ)
+  have hd: (0 ≤ d) := by linarith
+
 
 /-- If `a(n)` tends to `t` and `c` is a constant then `c * a(n)` tends
 to `c * t`. -/

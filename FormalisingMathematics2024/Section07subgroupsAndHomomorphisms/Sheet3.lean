@@ -68,8 +68,7 @@ example (x y : G) : mk' N x = mk' N y ↔ ∃ n ∈ N, x * n = y :=
 There is of course much more API, but if you want to get some practice you can
 just develop some of it yourself from these two functions.
 -/
-example : (mk' N).ker = N := by
-  sorry
+example : (mk' N).ker = N := ker_mk' N
 
 /-
 # Universal properties
@@ -111,7 +110,10 @@ variable {P : Subgroup H} [P.Normal]
 def ρ (h : N.map φ ≤ P) : G ⧸ N →* H ⧸ P :=
   lift N ((mk' P).comp φ) (by
     -- we are using `lift` so we need to supply the proof that `(mk' P).comp φ` kills `N`
-    sorry
+    intro n hN
+    simp [MonoidHom.mem_ker]
+    apply h
+    exact Subgroup.mem_map_of_mem φ hN
   )
 
 -- Now let's prove that `ρ ∘ mk' N = mk' P ∘ φ`

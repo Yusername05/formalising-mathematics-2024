@@ -57,19 +57,33 @@ splitting into cases in this proof.
 example : TopologicalSpace X where
   IsOpen (s : Set X) := s = ∅ ∨ s = Set.univ -- empty set or whole thing
   isOpen_univ := by
-    sorry -- use `dsimp`
+    right
+    rfl
   isOpen_inter := by
-    sorry -- use `cases'`
+    rintro s t (rfl | rfl) (rfl | rfl) <;> simp
   isOpen_sUnion := by
-    intro F
-    -- do cases on whether Set.univ ∈ F
-    sorry
+    rintro F hF
+    by_cases h: Set.univ ∈ F <;> rw [Set.sUnion_eq_empty]
+    · right
+      ext x
+      rw [Set.mem_sUnion]
+      constructor <;> intro _
+      · exact Set.mem_univ x
+      · use Set.univ
+    · left
+      intro t ht
+      cases' (hF t ht) with h1 h2
+      · exact h1
+      · by_contra h1
+        apply h
+        rw [←h2]
+        exact ht
 
 -- `isOpen_empty` is the theorem that in a topological space, the empty set is open.
 -- Can you prove it yourself? Hint: arbitrary unions are open
 
 example (X : Type) [TopologicalSpace X] : IsOpen (∅ : Set X) := by
-  sorry
+  convert isOpen_sUnion (s := ∅) ?_ <;> simp
 
 -- The reals are a topological space. Let's check Lean knows this already
 #synth TopologicalSpace ℝ
@@ -83,13 +97,30 @@ def Real.IsOpen (s : Set ℝ) : Prop :=
 
 -- Now let's prove the axioms
 lemma Real.isOpen_univ : Real.IsOpen (Set.univ : Set ℝ) := by
-  sorry
+  intro x hx
+  use 1
+  norm_num
 
 lemma Real.isOpen_inter (s t : Set ℝ) (hs : IsOpen s) (ht : IsOpen t) : IsOpen (s ∩ t) := by
-  sorry
+  rintro x ⟨hxs, hxt⟩
+  obtain ⟨δs, hδs, hs'⟩ := hs x hxs
+  obtain ⟨δt, hδt, ht'⟩ := ht x hxt
+  use min δs δt, lt_min hδs hδt
+  rintro y ⟨h1, h2⟩
+  constructor
+  · apply hs'
+    constructor <;> linarith [min_le_left δs δt]
+  · apply ht'
+    constructor <;> linarith [min_le_right δs δt]
 
 lemma Real.isOpen_sUnion (F : Set (Set ℝ)) (hF : ∀ s ∈ F, IsOpen s) : IsOpen (⋃₀ F) := by
-  sorry
+  intro x hx
+  simp_rw [Set.mem_sUnion] at *
+  rcases hx with ⟨Y, hYF, hxY⟩
+  obtain ⟨δ, hδ, h⟩ := hF Y hYF x hxY
+  use δ, hδ
+  peel h with hy y hyint
+  use Y, hYF
 
 -- now we put everything together using the notation for making a structure
 example : TopologicalSpace ℝ where

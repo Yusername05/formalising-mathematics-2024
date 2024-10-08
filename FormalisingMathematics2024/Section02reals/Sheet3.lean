@@ -5,6 +5,8 @@ Author : Kevin Buzzard
 -/
 import Mathlib.Tactic -- import all the tactics
 
+set_option trace.Meta.Tactic.simp true
+
 namespace Section2sheet3
 
 /-
@@ -96,11 +98,23 @@ theorem tendsTo_const (c : ℝ) : TendsTo (fun n ↦ c) c :=
 
 /-- If `a(n)` tends to `t` then `a(n) + c` tends to `t + c` -/
 theorem tendsTo_add_const {a : ℕ → ℝ} {t : ℝ} (c : ℝ) (h : TendsTo a t) :
+    TendsTo (fun n => a n + c) (t + c) := by
+  simp only [add_sub_add_right_eq_sub, tendsTo_def]
+  exact h
+
+theorem tendsTo_add_const₁ {a : ℕ → ℝ} {t : ℝ} (c : ℝ) (h : TendsTo a t) :
     TendsTo (fun n => a n + c) (t + c) :=
   by
   rw [tendsTo_def] at h ⊢
-  ring_nf
-  exact h
+  intro ε hε
+  specialize h ε
+  apply h at hε
+  cases' hε with N ha
+  use N
+  intro n
+  specialize ha n
+  rw [add_sub_add_right_eq_sub]
+  exact ha
 
 -- you're not quite ready for this one yet though.
 /-- If `a(n)` tends to `t` then `-a(n)` tends to `-t`.  -/
@@ -114,3 +128,6 @@ example {a : ℕ → ℝ} {t : ℝ} (ha : TendsTo a t) : TendsTo (fun n => -a n)
 -- Leave this for now and try sheet 4, where you'll learn how to discover these things.
 -- We'll come back to this example on sheet 5.
 end Section2sheet3
+
+example {a : ℕ → ℝ} {t : ℝ} (c : ℝ) (h : TendsTo a t) :
+    TendsTo (fun n => a n + c) (t + c) :=

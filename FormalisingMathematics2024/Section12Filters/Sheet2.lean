@@ -46,7 +46,13 @@ open Filter Set
 open scoped Filter
 -- for 𝓟 notation
 
-example (S T : Set α) : 𝓟 S ≤ 𝓟 T ↔ S ⊆ T := sorry
+example (S T : Set α) : 𝓟 S ≤ 𝓟 T ↔ S ⊆ T := by
+  constructor
+  · intro h a haS
+    apply h
+    · exact mem_principal_self T
+    · exact haS
+  · sorry
 
 -- Here's another useful lemma about principal filters.
 -- It's called `le_principal_iff` in mathlib but why

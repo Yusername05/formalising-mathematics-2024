@@ -48,7 +48,14 @@ example : f.Bijective ↔
 -- please ask. There's lots of little Lean tricks which make this
 -- question not too bad, but there are lots of little pitfalls too.
 example : (∃ g : Y → X, f ∘ g = id ∧ g ∘ f = id) → f.Bijective := by
-  sorry
+  rintro ⟨g, ⟨h1, h2⟩⟩
+  constructor
+  · apply Function.Injective.of_comp
+    rw [h2]
+    exact Function.injective_id
+  · apply Function.Surjective.of_comp
+    rw [h1]
+    exact Function.surjective_id
 
 -- The other way is harder in Lean, unless you know about the `choose`
 -- tactic. Given `f` and a proof that it's a bijection, how do you
@@ -56,4 +63,12 @@ example : (∃ g : Y → X, f ∘ g = id ∧ g ∘ f = id) → f.Bijective := by
 -- `g`, and the `choose` tactic does this for you.
 -- If `hfs` is a proof that `f` is surjective, try `choose g hg using hfs`.
 example : f.Bijective → ∃ g : Y → X, f ∘ g = id ∧ g ∘ f = id := by
-  sorry
+  rintro ⟨hfi, hfs⟩
+  choose g gh using hfs
+  use g
+  constructor
+  · ext y
+    exact gh y
+  · ext x
+    apply hfi
+    exact gh (f x)

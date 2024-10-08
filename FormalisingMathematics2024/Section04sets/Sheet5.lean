@@ -61,11 +61,25 @@ example : A ∩ ∅ = ∅ := by
     exfalso
     exact hB
 
-example : A ∪ univ = univ := by sorry
+example : A ∪ univ = univ := by
+  ext a
+  constructor
+  · rintro (ha | h)
+    · triv
+    · exact h
+  · intro h
+    right
+    triv
 
-example : A ⊆ B → B ⊆ A → A = B := by sorry
+example : A ⊆ B → B ⊆ A → A = B := by
+  intro hA hB
+  ext a
+  constructor <;> intro h
+  · exact hA h
+  · exact hB h
 
-example : A ∩ B = B ∩ A := by sorry
+example : A ∩ B = B ∩ A := by 
+  exact inter_comm A B
 
 example : A ∩ (B ∩ C) = A ∩ B ∩ C := by sorry
 

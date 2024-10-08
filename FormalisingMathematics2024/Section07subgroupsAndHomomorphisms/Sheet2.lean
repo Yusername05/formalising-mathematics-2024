@@ -127,15 +127,24 @@ example (φ : G →* H) (S T : Subgroup H) (hST : S ≤ T) : S.comap φ ≤ T.co
 
 -- image preserves `≤` (i.e. if `S ≤ T` are subgroups of `G` then `φ(S) ≤ φ(T)`)
 example (φ : G →* H) (S T : Subgroup G) (hST : S ≤ T) : S.map φ ≤ T.map φ := by
-  rintro h ⟨g, hg, rfl⟩
-  sorry
+  rintro h ⟨g, hgS, rfl⟩
+  have hgT : (g ∈ ↑T) := hST hgS
+  simp
+  use g
 
 -- Pulling a subgroup back along one homomorphism and then another, is equal
 -- to pulling it back along the composite of the homomorphisms.
 example (φ : G →* H) (ψ : H →* K) (U : Subgroup K) : U.comap (ψ.comp φ) = (U.comap ψ).comap φ := by
-  sorry
+  rfl
 
 -- Pushing a subgroup along one homomorphism and then another is equal to
 --  pushing it forward along the composite of the homomorphisms.
 example (φ : G →* H) (ψ : H →* K) (S : Subgroup G) : S.map (ψ.comp φ) = (S.map φ).map ψ := by
-  sorry
+  ext k
+  constructor
+  · simp
+    intro x hxS h
+    use x
+  · simp
+    intro x hxS h
+    use x

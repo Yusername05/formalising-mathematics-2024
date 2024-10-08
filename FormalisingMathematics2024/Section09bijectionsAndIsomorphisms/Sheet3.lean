@@ -25,9 +25,11 @@ example (X : Type) : X ≃ X :=
   { toFun := fun x ↦ x
     invFun := fun y ↦ y
     left_inv := by
-      sorry
+      intro x
+      dsimp
     right_inv := by
-      sorry }
+      intro y
+      dsimp }
 
 -- now let's see you define `Equiv.symm` and `Equiv.trans`.
 -- Let's start with `Equiv.symm`.
@@ -38,10 +40,8 @@ example (X Y : Type) (e : X ≃ Y) : Y ≃ X :=
   { toFun := e.invFun
     -- you could write `λ x, e.inv_fun x` instead
     invFun := e.toFun
-    left_inv := by
-      sorry
-    right_inv := by
-      sorry }
+    left_inv := e.right_inv
+    right_inv := e.left_inv }
 
 -- Actually, you're not supposed to write `e.toFun` and `e.invFun`
 -- directly, because `X ≃ Y` has got a coercion to `X → Y`,
@@ -60,9 +60,11 @@ example (X Y Z : Type) (eXY : X ≃ Y) (eYZ : Y ≃ Z) : X ≃ Z :=
   { toFun := fun x => eYZ (eXY x)
     invFun := fun z => eXY.symm (eYZ.symm z)
     left_inv := by
-      sorry
+      intro x
+      simp
     right_inv := by
-      sorry
+      intro x
+      simp
   }
 
 -- Because `Equiv.trans` is already there, we can instead just use it
@@ -77,7 +79,7 @@ example (X Y Z : Type) (eXY : X ≃ Y) (eYZ : Y ≃ Z) : X ≃ Z :=
 -- See if you can make the following bijection using dot notation
 -- (note: I didn't write `by` so Lean is just expecting the term)
 example (A B X : Type) (eAX : A ≃ X) (eBX : B ≃ X) : A ≃ B :=
-  sorry
+  eAX.trans eBX.symm
 
 /-
 
@@ -99,7 +101,13 @@ def R (X Y : Type) : Prop :=
   ∃ e : X ≃ Y, True
 
 example : Equivalence R := by
-  sorry
+  refine' ⟨_,_,_⟩
+  · intro X
+    exact ⟨Equiv.refl X, trivial⟩
+  · intro X Y ⟨eXY, _⟩
+    exact ⟨eXY.symm, trivial⟩
+  · intro X Y Z ⟨eXY, _⟩ ⟨eYZ, _⟩
+    exact ⟨eXY.trans eYZ, trivial⟩
 
 -- Remark: the equivalence classes of `R` are called *cardinals*.
 

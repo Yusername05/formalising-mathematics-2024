@@ -76,7 +76,7 @@ noncomputable example (R : Type) [CommRing R] [IsDomain R] (φ : R → ℕ)
   let φ' : R → ℕ := fun r => if r = 0 then 0 else 1 + φ r
   have h' (a b : R) : ∃ q r : R,
     a = b * q + r ∧ (b = 0 ∧ q = 0 ∧ r = a ∨ b ≠ 0 ∧ φ' r < φ' b)
-  · sorry
+  sorry
   choose quot rem h'' using h'
   exact
     { quotient := quot

@@ -103,6 +103,41 @@ all height one primes are principal.
 
 -/
 
+theorem Ideal.mem_iff_associated {R : Type} [CommRing R] (I : Ideal R) {a b : R}
+    (hab : Associated a b) : a ∈ I ↔ b ∈ I := by
+  rcases hab with ⟨u, rfl⟩
+  refine' ⟨I.mul_mem_right _, _⟩
+  intro h
+  convert I.mul_mem_right ((u⁻¹ : Rˣ) : R) h
+  simp
+
+theorem Ideal.IsPrime.not_one_mem
+    {R : Type} [CommRing R] {P : Ideal R} (hI : P.IsPrime) :
+    (1 : R) ∉ P := by
+  intro h
+  apply hI.ne_top
+  rwa [Ideal.eq_top_iff_one]
+
+theorem Ideal.IsPrime.mem_of_prod_mem
+    {R : Type} [CommRing R] {P : Ideal R} (hP : P.IsPrime) {L : Multiset R} :
+    L.prod ∈ P → ∃ x : R, x ∈ L ∧ x ∈ P := by
+  refine L.induction_on ?_ ?_
+  · intro h
+    rw [Multiset.prod_zero] at h
+    cases hP.not_one_mem h
+  · intro a L IH h
+    simp only [Multiset.prod_cons] at h
+    rcases hP.mem_or_mem h with (ha | hL)
+    · exact ⟨a, by simp, ha⟩
+    · obtain ⟨x, hxL, hxP⟩ := IH hL
+      exact ⟨x, Multiset.mem_cons_of_mem hxL, hxP⟩
+
+theorem Prime.ideal_span_singleton_isPrime
+    {R : Type} [CommRing R] {p : R} (hp : Prime p) :
+    (Ideal.span {p} : Ideal R).IsPrime := by
+  rwa [Ideal.span_singleton_prime]
+  exact hp.ne_zero
+
 namespace Section14Sheet3
 
 -- out of laziness we don't define height n primes in a general
@@ -116,7 +151,7 @@ def IsHeightOnePrime
 
 -- All height one primes are principal in a UFD.
 example (R : Type) [CommRing R] [IsDomain R] [UniqueFactorizationMonoid R]
-    (P : Ideal R) : IsHeightOnePrime P → P.IsPrincipal :=
+    (P : Ideal R) : IsHeightOnePrime P → P.IsPrincipal := by
   /-
     The maths proof: let P be a height 1 prime. Then P ≠ 0, so choose
     nonzero x ∈ P. Factor x into irreducibles; by primality of P one
@@ -124,6 +159,13 @@ example (R : Type) [CommRing R] [IsDomain R] [UniqueFactorizationMonoid R]
     and (π) is prime and nonzero, so by the height 1 assumption we
     must have (π)=P.
     -/
+  rintro ⟨hP, hPnon0, hht1⟩ --P is prime, P is not zero, Highest height of tower ending with P is 1
+  have hxP : ∃ x ∈ P, x ≠ (0 : R) := by
+    sorry
+  rcases hxP with ⟨x, hxP, hxnot0⟩ -- split into the element x and the statement that x ∈ P and x ≠ 0
+  obtain ⟨L, hLprime, hLx⟩ := -- factor x into the multiset of factors, every one of these factors is prime, the product of L is associated to p
+    UniqueFactorizationMonoid.exists_prime_factors x hxnot0
+  rw [← P.mem_iff_associated hLx] at hxP -- the product of the multiset must be ∈ P as its associated to p ∈ P
   sorry
 
 end Section14Sheet3

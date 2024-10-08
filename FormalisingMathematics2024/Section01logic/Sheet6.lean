@@ -45,8 +45,20 @@ example : P ∨ Q → Q ∨ P := by
 
 -- associativity of `or`
 example : (P ∨ Q) ∨ R ↔ P ∨ Q ∨ R := by
-  sorry
+  constructor
+  · rintro ((hP | hQ) | hR)
+    · left; exact hP
+    · right; left; exact hQ
+    · right; right; exact hR
+  · rintro (hP | (hQ | hR))
+    · left; left; exact hP
+    · left; right; exact hQ
+    · right; exact hR
   done
+
+example : (P ∨ Q) ∨ R ↔ P ∨ Q ∨ R := by exact or_assoc
+
+#print axioms or_assoc
 
 example : (P → R) → (Q → S) → P ∨ Q → R ∨ S := by
   sorry
